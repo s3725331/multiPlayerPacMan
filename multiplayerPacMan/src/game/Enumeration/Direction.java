@@ -1,8 +1,9 @@
 package game.Enumeration;
 
 import java.awt.event.KeyEvent;
+import java.io.Serializable;
 
-public enum Direction {
+public enum Direction{
 	UP,LEFT,DOWN,RIGHT,NO_DIRECTION;
 	
 	public static Direction keyCode2Direction(int keyCode) {
