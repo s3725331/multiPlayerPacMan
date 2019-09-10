@@ -3,7 +3,7 @@ package networking;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-import game.GameState;
+import game.GameData;
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
 import game.interfaces.RemoteObjectInterface;
@@ -26,8 +26,8 @@ public class RemoteObject extends UnicastRemoteObject implements RemoteObjectInt
 	}
 
 	@Override
-	public GameState requestGameState() throws RemoteException{
-		return server.getGameState();
+	public GameData requestGameData() throws RemoteException{
+		return server.getGameData();
 	}
 	
 	@Override

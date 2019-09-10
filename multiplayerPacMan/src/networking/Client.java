@@ -13,29 +13,30 @@ import javax.naming.NamingException;
 import javax.swing.SwingUtilities;
 
 import game.GameEngine;
-import game.GameState;
+import game.GameData;
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
 import game.interfaces.GameOutput;
 import game.interfaces.RemoteObjectInterface;
-import gui.SimpleOutPut;
 import networking.exceptions.FullServerException;
 import networking.exceptions.NoRegistryException;
 
 public class Client {
-	private final int TICK_RATE = 333;
+	private final int TICK_RATE = 500;
+	private final int FRAME_RATE = 30;
+	
 	
 	RemoteObjectInterface stub;
 	PlayerNum playerNum;
 	
-	GameState gameState;
+	GameData gameData;
 	int gameTick;
 	int lastServerTick;
 	int currentKeyCode;
 	
 	Timer updater;
 	
-	Collection<GameOutput> outputs = new HashSet<GameOutput>() ; 
+	Collection<GameOutput> outputs = new HashSet<GameOutput>(); 
 	
 	public Client (String hostName) throws NoRegistryException, FullServerException, RemoteException{
 		connectToServer(hostName);
@@ -62,7 +63,8 @@ public class Client {
 		gameTick = 0;
 		currentKeyCode = KeyEvent.VK_UNDEFINED;
 		
-		//TODO instantiating gameState (will depend on how loby is set up)
+		//TODO instantiating gameData (will depend on how loby is set up)
+		
 	}
 	
 	
@@ -100,17 +102,17 @@ public class Client {
 				currentKeyCode = keyCode;
 				Direction newDirection = Direction.keyCode2Direction(keyCode);
 				stub.updateInput(newDirection, playerNum);
-				gameState.getPlayer(playerNum).setDirection(newDirection);
+				gameData.getPlayer(playerNum).setDirection(newDirection);
 			}
 		}
 	}
 	
-	public void requestGameState() throws RemoteException{
-		gameState = stub.requestGameState();
+	public void requestgameData() throws RemoteException{
+		gameData = stub.requestGameData();
 	}
 	
-	public GameState getGameState() {
-		return gameState;
+	public GameData getgameData() {
+		return gameData;
 	}
 	
 	public PlayerNum getPlayerNum() {
@@ -120,9 +122,28 @@ public class Client {
 	private void startGameTimer() {
 		System.out.println("startGameTimer");
 		
-		gameState = new GameState();
+		gameData = new GameData();
 		lastServerTick = 0;
 		//defining guiUpdater
+		
+		new Timer().scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				//updating each output
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						//Update each gui
+						for(GameOutput output:outputs)
+							output.updateGame(gameData);
+					}
+				});
+			}
+			
+			
+		}, 0, 1000/FRAME_RATE);
+		
+		
 		updater = new Timer();
 		updater.scheduleAtFixedRate(new TimerTask() {
 			
@@ -130,46 +151,37 @@ public class Client {
 			@Override
 			public void run() {
 				System.out.println(playerNum + ": run game update");
-				System.out.println(playerNum + ":Tick: " + gameState.getTick());
+				System.out.println(playerNum + ":Tick: " + gameData.getTick());
 				try{
 					System.out.println(playerNum + ":Player Pos: " + 
-							gameState.getPlayer(playerNum).getX()
-							+ ", " + gameState.getPlayer(playerNum).getY());}
+							gameData.getPlayer(playerNum).getX()
+							+ ", " + gameData.getPlayer(playerNum).getY());}
 				catch(Exception e) {
 					System.out.println(e);
 				}
-				//updating each output
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						//Update each gui
-						for(GameOutput output:outputs)
-							output.updateGame(gameState);
-					}
-				});
 				
 				gameTick++;
-				//Update gameState (Should only happen once)
-				while (gameState.getTick() < gameTick) {
+				//Update gameData (Should only happen once)
+				while (gameData.getTick() < gameTick) {
 					System.out.println(playerNum + ":Client Game Tick");
-					GameEngine.updateGame(gameState);
+					GameEngine.updateGame(gameData);
 				}
 				
 				try {
-					//Get newest gamestate from server
-					GameState serverState = stub.requestGameState();
+					//Get newest gameData from server
+					GameData serverState = stub.requestGameData();
 					if(serverState.getTick() >= lastServerTick) {
-						gameState = serverState;
-						lastServerTick = gameState.getTick();
+						gameData = serverState;
+						lastServerTick = gameData.getTick();
 					}
 								
 				} catch(Exception e) {
 					System.out.println(e);
 				}
-				//Predict forward if gamestate old
-				while (gameState.getTick() < gameTick) {
+				//Predict forward if gameData old
+				while (gameData.getTick() < gameTick) {
 					System.out.println(playerNum + ":Post-Server Game Tick");
-					GameEngine.updateGame(gameState);
+					GameEngine.updateGame(gameData);
 				}
 			}
 		} , 0, TICK_RATE);

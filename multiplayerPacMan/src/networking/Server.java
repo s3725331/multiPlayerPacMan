@@ -4,25 +4,32 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.swing.SwingUtilities;
 
 import game.GameEngine;
-import game.GameState;
+import game.GameData;
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
+import game.interfaces.GameOutput;
 
 public class Server{
-	private final int TICK_RATE = 333;
-	GameState gameState;
+	private final int TICK_RATE = 500;
+	private final int FRAME_RATE = 30;
+	GameData gameData;
 	String registryAddress;
 	
 	boolean gameStart;
 	Timer serverSideGameUpdate;
+
+	Collection<GameOutput> outputs = new HashSet<GameOutput>(); 
 	
 	
 	public Server() throws RemoteException, NamingException, UnknownHostException{
@@ -43,16 +50,16 @@ public class Server{
 		
 		//
 		gameStart = false;
-		gameState = new GameState();
+		gameData = new GameData();
 		
 	}
 	
 	public PlayerNum addNewClient() {
-		return gameState.addPlayer();
+		return gameData.addPlayer();
 	}
 	
 	public void updateClientInput(Direction direction,PlayerNum playerNum) {
-		gameState.getPlayer(playerNum).setDirection(direction);
+		gameData.getPlayer(playerNum).setDirection(direction);
 	}
 	
 	public void startGame() {
@@ -62,13 +69,33 @@ public class Server{
 		serverSideGameUpdate.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				GameEngine.updateGame(gameState);
+				GameEngine.updateGame(gameData);
 			}
 		}, 0, TICK_RATE);
+		
+		new Timer().scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				//updating each output
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						//Update each gui
+						for(GameOutput output:outputs)
+							output.updateGame(gameData);
+					}
+				});
+			}
+			
+		}, 0, 1000/FRAME_RATE);
 	}
 	
-	public GameState getGameState() {
-		return gameState;
+	public GameData getGameData() {
+		return gameData;
+	}
+	
+	public void registerOutput(GameOutput output) {
+		outputs.add(output);
 	}
 	
 	public String getHostAddress() {

@@ -8,17 +8,21 @@ public class testLauncher {
 
 	public static void main(String[] args) {
 		try {
-			System.out.print("Making Server:");
-			Server server = new Server();
 			
-			System.out.print("Making Client:");
+			Server server = new Server();
 			Client client = new Client(server.getHostAddress());
 			
-			System.out.print("Making GUI:");
-			client.registerOutput(new SimpleOutPut(client));
+			server.registerOutput(new SimpleOutPut(client, "Server"));
+			
+			/*Client client = new Client(server.getHostAddress());
+			SimpleOutPut output = new SimpleOutPut(client);
+			client.registerOutput(output);
+			*/
+			
+			client.registerOutput(new SimpleOutPut(client,client.getPlayerNum().toString()));
 			
 			Client client2 = new Client(server.getHostAddress());
-			client2.registerOutput(new SimpleOutPut(client2));
+			client2.registerOutput(new SimpleOutPut(client2,client2.getPlayerNum().toString()));
 			
 			server.startGame();
 			

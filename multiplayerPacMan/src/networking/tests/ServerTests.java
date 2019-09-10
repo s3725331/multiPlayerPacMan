@@ -28,6 +28,7 @@ class ServerTests {
 	public void addClient() {
 		//Adding a client and testing that has correct id
 		assertEquals(testServer.addNewClient(),PlayerNum.PLAYER_ONE);
+		System.out.println(testServer.addNewClient());
 		//testing that client has been added to gamestate
 		assertEquals(testServer.getGameState().getNumPlayers(),1);	
 	}

@@ -27,13 +27,13 @@ class ClientRegisterTests {
 	}
 
 	@Test (expected=NoRegistryException.class)
-	public void badHostName() throws FullServerException, NoRegistryException{
+	public void badHostName() throws FullServerException, NoRegistryException, RemoteException{
 		//create new client with a bad ip
 		testClient = new Client("Bad IP") ;
 	}
 	
 	@Test (expected=FullServerException.class)
-	public void fullServer() throws FullServerException, UnknownHostException, NoRegistryException{
+	public void fullServer() throws RemoteException, FullServerException, UnknownHostException, NoRegistryException{
 		//Filling server
 		testServer.addNewClient();
 		testServer.addNewClient();
@@ -46,7 +46,7 @@ class ClientRegisterTests {
 	}
 	
 	@Test 
-	public void successfulConnect() throws FullServerException, NoRegistryException, UnknownHostException{
+	public void successfulConnect() throws RemoteException, FullServerException, NoRegistryException, UnknownHostException{
 		//create new client with a correct ip
 		testClient = new Client(InetAddress.getLocalHost().getHostAddress());
 		

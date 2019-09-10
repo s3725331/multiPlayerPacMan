@@ -5,11 +5,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.event.KeyEvent;
 import java.net.InetAddress;
+import java.rmi.RemoteException;
 
 import org.junit.*;
 import org.junit.Test;
 
-import game.GameState;
+import game.GameData;
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
 import gui.SimpleOutPut;
@@ -48,7 +49,7 @@ class ClientTests {
 	}
 
 	@Test
-	public void badKeyInput() {
+	public void badKeyInput() throws RemoteException{
 		//Client given invalid key, should not call to server
 		testClient.updateKeyInput(KeyEvent.VK_SPACE);
 		
@@ -67,7 +68,7 @@ class ClientTests {
 	}*/
 	
 	@Test
-	public void newKeyInput() {
+	public void newKeyInput() throws RemoteException{
 		//Client given up key
 		testClient.updateKeyInput(KeyEvent.VK_UP);
 		//tests that server has been updated

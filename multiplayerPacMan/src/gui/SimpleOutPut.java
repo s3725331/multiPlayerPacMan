@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import game.GameMap;
-import game.GameState;
+import game.GameData;
 import game.PlayerData;
 import game.interfaces.GameOutput;
 import networking.Client;
@@ -17,8 +17,8 @@ import networking.Client;
 public class SimpleOutPut extends JFrame implements GameOutput{
 	JLabel gameText;
 	
-	public SimpleOutPut(Client client) {
-		setTitle(client.getPlayerNum().toString());
+	public SimpleOutPut(Client client, String title) {
+		setTitle(title);
 		setBounds(100,100,330,500);
 		setVisible(true);
 		
@@ -55,8 +55,7 @@ public class SimpleOutPut extends JFrame implements GameOutput{
 		});
 	}
 	
-	private void updateGameText(GameState gameState) {
-		System.out.println("Updating gui:");
+	private void updateGameText(GameData gameState) {
 		String output ="";
 		
 		GameMap gameMap = new GameMap();
@@ -112,14 +111,12 @@ public class SimpleOutPut extends JFrame implements GameOutput{
 		}
 		
 		//int ghostIndex = game
-		 
-		System.out.println(output);
 		gameText.setText(getHtml(output));
 		gameText.repaint();
 	}
 
 	@Override
-	public void updateGame(GameState gameState) {
+	public void updateGame(GameData gameState) {
 		updateGameText(gameState);
 	}
 

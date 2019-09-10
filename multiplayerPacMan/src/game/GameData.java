@@ -8,7 +8,7 @@ import java.util.Map;
 
 import game.Enumeration.PlayerNum;
 
-public class GameState implements Serializable{
+public class GameData implements Serializable{
 	/**
 	 * 
 	 */
@@ -17,7 +17,7 @@ public class GameState implements Serializable{
 	private int gameTick;
 	private Map<PlayerNum, PlayerData> players = new HashMap<PlayerNum, PlayerData>();
 	
-	public GameState() {
+	public GameData() {
 		numPlayers = 0;
 	}
 	
@@ -34,7 +34,6 @@ public class GameState implements Serializable{
 	}
 	
 	public PlayerNum addPlayer() {
-		
 		PlayerNum playerNum;
 		if((playerNum = PlayerNum.numToPlayerNum(numPlayers+1)) != PlayerNum.INVALID_PLAYER) {
 			numPlayers++;

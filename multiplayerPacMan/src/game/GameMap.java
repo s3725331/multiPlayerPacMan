@@ -13,8 +13,6 @@ public class GameMap {
 	
 	
 	
-	
-	
 	private BlockType[][] map = {{BlockType.WALL,
 	BlockType.WALL,
 	BlockType.WALL,
