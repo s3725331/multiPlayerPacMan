@@ -13,6 +13,7 @@ public class PlayerData implements Serializable{
 	private int x;
 	private int y;
 	private Direction direction = Direction.NO_DIRECTION;
+	private Direction bufferDirection = Direction.NO_DIRECTION;
 	private PlayerNum playerNum;
 	
 	public PlayerData(PlayerNum playerNum,int x,int y) {
@@ -21,13 +22,23 @@ public class PlayerData implements Serializable{
 		this.y = y;
 	}
 
-	public void setDirection(Direction direction) {
-		this.direction = direction;
+	public void setBufferDirection(Direction direction) {
+		this.bufferDirection = direction;
+	}
+	
+	public Direction getBufferDirection() {
+		return bufferDirection;
 	}
 	
 	public Direction getDirection() {
 		return direction;
 	}
+	
+	public void  useDirBuffer() {
+		direction = bufferDirection;
+		bufferDirection = Direction.NO_DIRECTION;
+	}
+	
 	
 	public int getX() {
 		return x;

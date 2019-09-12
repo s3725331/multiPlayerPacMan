@@ -18,30 +18,34 @@ import game.GameEngine;
 import game.GameData;
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
+import game.interfaces.ClientRemoteObjectInterface;
 import game.interfaces.GameOutput;
 
 public class Server{
-	private final int TICK_RATE = 500;
+	private final int TICK_RATE = 333;
 	private final int FRAME_RATE = 30;
-	GameData gameData;
-	String registryAddress;
+	private GameData gameData;
+	private String registryAddress;
 	
-	boolean gameStart;
-	Timer serverSideGameUpdate;
+	private boolean gameStart;
+	private Timer serverSideGameUpdate;
 
-	Collection<GameOutput> outputs = new HashSet<GameOutput>(); 
+	private Collection<GameOutput> outputs = new HashSet<GameOutput>(); 
+	
+	private Collection<ClientRemoteObjectInterface> clientStubs = new HashSet<ClientRemoteObjectInterface>();
+	
 	
 	
 	public Server() throws RemoteException, NamingException, UnknownHostException{
 		//creating client stub
-		RemoteObject stub = new RemoteObject(this);
+		ServerRemoteObject skeleton = new ServerRemoteObject(this);
 		
 		//Creating registry on local host
 		LocateRegistry.createRegistry(1099);
 		
 		//binding remoteObject on registry
 		Context namingContext = new InitialContext();
-		namingContext.bind("rmi:remote_obj",stub);
+		namingContext.bind("rmi:remote_obj",skeleton);
 		
 		registryAddress = InetAddress.getLocalHost().getHostAddress();
 			
@@ -54,25 +58,50 @@ public class Server{
 		
 	}
 	
-	public PlayerNum addNewClient() {
-		return gameData.addPlayer();
+	public PlayerNum addNewClient(ClientRemoteObjectInterface clientStub) {
+		//Adding new player to gamedata, adding client stub if player is added to gamedata
+		PlayerNum newPlayerNum = gameData.addPlayer();
+		if (newPlayerNum != PlayerNum.INVALID_PLAYER)
+			clientStubs.add(clientStub);
+		return newPlayerNum;
 	}
 	
 	public void updateClientInput(Direction direction,PlayerNum playerNum) {
-		gameData.getPlayer(playerNum).setDirection(direction);
+		gameData.getPlayer(playerNum).setBufferDirection(direction);
 	}
 	
 	public void startGame() {
 		gameStart = true;
+		//Setting state for all clients
+		for(ClientRemoteObjectInterface clientStub:clientStubs) {
+			try {
+				clientStub.startGame(TICK_RATE);
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
+		
+		
 		//defining clientSideGameUpdater
 		serverSideGameUpdate = new Timer();
 		serverSideGameUpdate.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
+				//Updating game
 				GameEngine.updateGame(gameData);
+				//Sending gameData to each client
+				for(ClientRemoteObjectInterface clientStub:clientStubs) {
+					try {
+						clientStub.sendGameData(gameData);
+					} catch (Exception e) {
+						System.out.println(e);
+					}
+				}
 			}
 		}, 0, TICK_RATE);
 		
+		
+		//Updating gui for server
 		new Timer().scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {

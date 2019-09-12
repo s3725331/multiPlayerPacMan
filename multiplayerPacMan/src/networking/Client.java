@@ -16,49 +16,31 @@ import game.GameEngine;
 import game.GameData;
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
+import game.interfaces.ClientRemoteObjectInterface;
 import game.interfaces.GameOutput;
-import game.interfaces.RemoteObjectInterface;
+import game.interfaces.ServerRemoteObjectInterface;
 import networking.exceptions.FullServerException;
 import networking.exceptions.NoRegistryException;
 
 public class Client {
-	private final int TICK_RATE = 500;
+	private int TICK_RATE;
 	private final int FRAME_RATE = 30;
 	
 	
-	RemoteObjectInterface stub;
-	PlayerNum playerNum;
+	private ServerRemoteObjectInterface stub;
+	private PlayerNum playerNum;
 	
-	GameData gameData;
-	int gameTick;
-	int lastServerTick;
-	int currentKeyCode;
+	private GameData gameData;
+	private int gameTick;
+	private int lastServerTick;
+	private int currentKeyCode;
 	
-	Timer updater;
+	private Timer updater;
 	
-	Collection<GameOutput> outputs = new HashSet<GameOutput>(); 
+	private Collection<GameOutput> outputs = new HashSet<GameOutput>(); 
 	
 	public Client (String hostName) throws NoRegistryException, FullServerException, RemoteException{
 		connectToServer(hostName);
-		Timer startGameTimer= new Timer();
-		startGameTimer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				try {
-					if(stub.gameStarted()) {
-						//Stopping this timer
-						this.cancel();
-						startGameTimer.purge();
-						//starting game update timer
-						System.out.println("True");
-						startGameTimer();
-						
-					}
-				} catch(Exception e) {
-					System.out.println(e);
-				}
-			} 
-		} , 0, TICK_RATE);
 		
 		gameTick = 0;
 		currentKeyCode = KeyEvent.VK_UNDEFINED;
@@ -67,29 +49,29 @@ public class Client {
 		
 	}
 	
-	
-	public void registerOutput(GameOutput output) {
-		outputs.add(output);
-	}
-	
-	
 	private void connectToServer(String hostAddress) throws NoRegistryException, FullServerException, RemoteException {
 		try {
 			//Getting stub form server registry
 			Context namingContext = new InitialContext();
 			String url = "rmi://" + hostAddress + "/remote_obj";
-			stub = (RemoteObjectInterface) namingContext.lookup(url);
+			stub = (ServerRemoteObjectInterface) namingContext.lookup(url);
 		} catch (NamingException e) {
 			throw new NoRegistryException("Naming Exception: " + e.getMessage());
 		}
 		System.out.println(stub);
 		//call to server and receive player number
-		playerNum = stub.connectToServer();
+		playerNum = stub.connectToServer(new ClientRemoteObject(this));
 		System.out.println("PlayerNum: " + playerNum);
 		if (playerNum == PlayerNum.INVALID_PLAYER) {
 			throw new FullServerException("Server refused to add player\n(Likely that server is full)");
 		}
 	}
+	
+	
+	public void registerOutput(GameOutput output) {
+		outputs.add(output);
+	}
+	
 	
 	public void updateKeyInput(int keyCode) throws RemoteException{
 		//Checking that keyinput is a valid direction
@@ -102,16 +84,21 @@ public class Client {
 				currentKeyCode = keyCode;
 				Direction newDirection = Direction.keyCode2Direction(keyCode);
 				stub.updateInput(newDirection, playerNum);
-				gameData.getPlayer(playerNum).setDirection(newDirection);
+				gameData.getPlayer(playerNum).setBufferDirection(newDirection);
 			}
 		}
 	}
 	
-	public void requestgameData() throws RemoteException{
-		gameData = stub.requestGameData();
+	public void startGame(int TICK_RATE) {
+		this.TICK_RATE = TICK_RATE;
+		startGameTimer();
 	}
 	
-	public GameData getgameData() {
+	public void setGameData(GameData gameData) {
+		this.gameData = gameData;
+	}
+	
+	public GameData getGameData() {
 		return gameData;
 	}
 	
@@ -124,6 +111,7 @@ public class Client {
 		
 		gameData = new GameData();
 		lastServerTick = 0;
+		
 		//defining guiUpdater
 		
 		new Timer().scheduleAtFixedRate(new TimerTask() {
@@ -144,7 +132,8 @@ public class Client {
 		}, 0, 1000/FRAME_RATE);
 		
 		
-		updater = new Timer();
+		
+		/*updater = new Timer();
 		updater.scheduleAtFixedRate(new TimerTask() {
 			
 			
@@ -167,6 +156,7 @@ public class Client {
 					GameEngine.updateGame(gameData);
 				}
 				
+				
 				try {
 					//Get newest gameData from server
 					GameData serverState = stub.requestGameData();
@@ -184,7 +174,7 @@ public class Client {
 					GameEngine.updateGame(gameData);
 				}
 			}
-		} , 0, TICK_RATE);
+		} , 0, TICK_RATE);*/
 	}
 
 }

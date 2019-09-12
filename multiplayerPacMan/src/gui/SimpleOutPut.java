@@ -4,9 +4,12 @@ import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 
 import game.GameMap;
 import game.GameData;
@@ -15,6 +18,7 @@ import game.interfaces.GameOutput;
 import networking.Client;
 
 public class SimpleOutPut extends JFrame implements GameOutput{
+	private final int FRAME_RATE = 30;
 	JLabel gameText;
 	
 	public SimpleOutPut(Client client, String title) {
@@ -36,23 +40,18 @@ public class SimpleOutPut extends JFrame implements GameOutput{
 				client.updateKeyInput(keyCode.getKeyCode());
 				} catch(Exception e) {
 					
-				}
-				
+				}	
 			}
-
-			/*@Override
-			public void keyReleased(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}*/
-			
 		});
+		
+		/*
+		//defining guiUpdater
+		new Timer().scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				updateGameText(client.getGameData());
+			}
+		}, 0, 1000/FRAME_RATE);*/
 	}
 	
 	private void updateGameText(GameData gameState) {
