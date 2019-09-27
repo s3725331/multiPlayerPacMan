@@ -26,8 +26,6 @@ public class SimpleOutPut extends JFrame implements GameOutput{
 		setBounds(100,100,330,500);
 		setVisible(true);
 		
-		new JLabel("Multiplayer PacMan");
-		
 		gameText = new JLabel("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 		gameText.setFont(new Font("Courier", Font.PLAIN, 18));
 		add(gameText);

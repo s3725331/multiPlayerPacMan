@@ -4,6 +4,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.ExportException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Timer;
@@ -21,11 +24,14 @@ import game.Enumeration.PlayerNum;
 import game.interfaces.ClientRemoteObjectInterface;
 import game.interfaces.GameOutput;
 
+import networking.exceptions.*;
+
 public class Server{
 	private final int TICK_RATE = 333;
 	private final int FRAME_RATE = 30;
 	private GameData gameData;
 	private String registryAddress;
+	private Registry registry;
 	
 	private boolean gameStart;
 	private Timer serverSideGameUpdate;
@@ -36,26 +42,36 @@ public class Server{
 	
 	
 	
-	public Server() throws RemoteException, NamingException, UnknownHostException{
-		//creating client stub
-		ServerRemoteObject skeleton = new ServerRemoteObject(this);
-		
-		//Creating registry on local host
-		LocateRegistry.createRegistry(1099);
-		
-		//binding remoteObject on registry
-		Context namingContext = new InitialContext();
-		namingContext.bind("rmi:remote_obj",skeleton);
-		
-		registryAddress = InetAddress.getLocalHost().getHostAddress();
+	public Server() throws Exception{
+		try {
+			//creating client stub
+			ServerRemoteObject skeleton = new ServerRemoteObject(this);
+			
+			//Creating registry on local host
+			registry = LocateRegistry.createRegistry(1099);
+			
+			//binding remoteObject on registry
+			Context namingContext = new InitialContext();
+			namingContext.bind("rmi:remote_obj",skeleton);
+			
+			registryAddress = InetAddress.getLocalHost().getHostAddress();
+		} catch(ExportException e) {
+			throw new RegistryExistsException("Registry already exists, likey that a host server is already running.");
+		}
 			
 		System.out.println("Waiting for clients...");
 		System.out.println("Localhost Address: " + registryAddress);
 		
+		restartServer();
+		
+	}
+	
+	public void restartServer() {
 		//
 		gameStart = false;
 		gameData = new GameData();
 		
+		clientStubs.clear();
 	}
 	
 	public PlayerNum addNewClient(ClientRemoteObjectInterface clientStub) {
@@ -135,7 +151,11 @@ public class Server{
 		return gameStart;
 	}
 	
-	public void terminateSever() {
-		System.exit(0);
+	public Collection<ClientRemoteObjectInterface> getClientStubs() {
+		return clientStubs;
+	}
+
+	public void terminateSever() throws Throwable {
+		UnicastRemoteObject.unexportObject(registry,true);
 	}
 }

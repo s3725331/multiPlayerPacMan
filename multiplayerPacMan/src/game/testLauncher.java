@@ -1,6 +1,9 @@
 package game;
 
+import java.util.Scanner;
+
 import gui.SimpleOutPut;
+import gui.TemplateFrame;
 import networking.Client;
 import networking.Server;
 
@@ -8,7 +11,7 @@ public class testLauncher {
 
 	public static void main(String[] args) {
 		try {
-			
+			//Test Launch
 			Server server = new Server();
 			Client client = new Client(server.getHostAddress());
 			
@@ -19,13 +22,12 @@ public class testLauncher {
 			client.registerOutput(output);
 			*/
 			
-			client.registerOutput(new SimpleOutPut(client,client.getPlayerNum().toString()));
+			client.registerOutput(new TemplateFrame(client,client.getPlayerNum().toString()));
 			
-			Client client2 = new Client(server.getHostAddress());
-			client2.registerOutput(new SimpleOutPut(client2,client2.getPlayerNum().toString()));
+			//Client client2 = new Client(server.getHostAddress());
+			//client2.registerOutput(new SimpleOutPut(client2,client2.getPlayerNum().toString()));
 			
-			server.startGame();
-			
+			server.startGame();	
 		}catch(Exception e) {
 			System.err.println(e);
 		}

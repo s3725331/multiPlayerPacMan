@@ -56,6 +56,7 @@ public class GameEngine {
 			break;
 			
 		}
+		
 		switch(player.getDirection()) {
 		case RIGHT:
 			x = player.getX() + 1;

@@ -106,6 +106,10 @@ public class Client {
 		return playerNum;
 	}
 	
+	public int getCurrentKey() {
+		return currentKeyCode;
+	}
+	
 	private void startGameTimer() {
 		System.out.println("startGameTimer");
 		
