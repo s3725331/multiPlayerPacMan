@@ -25,10 +25,4 @@ public class ServerRemoteObject extends UnicastRemoteObject implements ServerRem
 	public void updateInput(Direction direction, PlayerNum playerNum) throws RemoteException{
 		server.updateClientInput(direction,playerNum);
 	}
-	
-	@Override
-	public boolean gameStarted() throws RemoteException {
-		return server.getGameStart();
-	}
-
 }

@@ -21,6 +21,7 @@ import game.GameEngine;
 import game.GameData;
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
+import game.Enumeration.ServerState;
 import game.interfaces.ClientRemoteObjectInterface;
 import game.interfaces.GameOutput;
 
@@ -33,7 +34,8 @@ public class Server{
 	private String registryAddress;
 	private Registry registry;
 	
-	private boolean gameStart;
+	private ServerState state;
+	
 	private Timer serverSideGameUpdate;
 
 	private Collection<GameOutput> outputs = new HashSet<GameOutput>(); 
@@ -68,7 +70,7 @@ public class Server{
 	
 	public void restartServer() {
 		//
-		gameStart = false;
+		state = ServerState.WAITING;
 		gameData = new GameData();
 		
 		clientStubs.clear();
@@ -87,11 +89,11 @@ public class Server{
 	}
 	
 	public void startGame() {
-		gameStart = true;
+		state = ServerState.PLAYING;
 		//Setting state for all clients
 		for(ClientRemoteObjectInterface clientStub:clientStubs) {
 			try {
-				clientStub.startGame(TICK_RATE);
+				clientStub.startGame(TICK_RATE,System.currentTimeMillis()+5000);
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -147,8 +149,8 @@ public class Server{
 		return registryAddress;
 	}
 	
-	public boolean getGameStart() {
-		return gameStart;
+	public ServerState getServerStart() {
+		return state;
 	}
 	
 	public Collection<ClientRemoteObjectInterface> getClientStubs() {

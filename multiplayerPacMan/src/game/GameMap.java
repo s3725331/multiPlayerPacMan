@@ -1,5 +1,8 @@
 package game;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import game.Enumeration.BlockType;
 
 public class GameMap {
@@ -283,6 +286,18 @@ public class GameMap {
 	
 	public BlockType getBlockAt(int x,int y) {
 		return map[y][x];
+	}
+	
+	public int[][] getWallCoords(){
+		Set<int[]> wallSet = new HashSet<int[]>();
+		for(int i = 0; i < map.length; i++) {
+			for(int j = 0; j < map[i].length; j++) {
+				if(map[i][j] == BlockType.WALL)
+					wallSet.add(new int[]{j,i});
+			}
+		}
+		
+		return wallSet.toArray(new int[2][wallSet.size()]);
 	}
 
 }

@@ -16,9 +16,12 @@ public class GameData implements Serializable{
 	private int numPlayers;
 	private int gameTick;
 	private Map<PlayerNum, PlayerData> players = new HashMap<PlayerNum, PlayerData>();
+	private GhostData ghost;
+	
 	
 	public GameData() {
 		numPlayers = 0;
+		ghost = new GhostData(5,1);
 	}
 	
 	public int getNumPlayers() {
@@ -44,6 +47,10 @@ public class GameData implements Serializable{
 	
 	public PlayerData getPlayer(PlayerNum playerNum) {
 		return players.get(playerNum);
+	}
+	
+	public GhostData getGhost() {
+		return ghost;
 	}
 	
 	public Collection<PlayerData> getPlayers(){

@@ -26,8 +26,8 @@ public class ClientRemoteObject extends UnicastRemoteObject implements ClientRem
 
 
 	@Override
-	public void startGame(int TICK_RATE) throws RemoteException {
-		client.startGame(TICK_RATE);
+	public void startGame(int TICK_RATE, long startTime) throws RemoteException {
+		client.startGame(TICK_RATE, startTime);
 		
 	}
 	

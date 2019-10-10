@@ -83,6 +83,8 @@ public class TemplateGamePanel extends JPanel{
 				g2D.drawImage(pacMan, player.getX()*32, player.getY()*32, 32, 32, getBackground(), this);
 			}
 			
+			g2D.drawImage(pacMan, gameData.getGhost().getX()*32, gameData.getGhost().getY()*32, 32, 32, getBackground(), this);
+			
 			//Draws walls
 			for(int i = 0; i< map.getHeight();i++) {
 				for(int j = 0; j< map.getWidth();j++) {

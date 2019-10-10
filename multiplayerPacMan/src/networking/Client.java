@@ -16,6 +16,7 @@ import game.GameEngine;
 import game.GameData;
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
+import game.Enumeration.PlayerState;
 import game.interfaces.ClientRemoteObjectInterface;
 import game.interfaces.GameOutput;
 import game.interfaces.ServerRemoteObjectInterface;
@@ -29,6 +30,8 @@ public class Client {
 	
 	private ServerRemoteObjectInterface stub;
 	private PlayerNum playerNum;
+	
+	private PlayerState state;
 	
 	private GameData gameData;
 	private int gameTick;
@@ -44,6 +47,7 @@ public class Client {
 		
 		gameTick = 0;
 		currentKeyCode = KeyEvent.VK_UNDEFINED;
+		state = PlayerState.WAITING;
 		
 		//TODO instantiating gameData (will depend on how loby is set up)
 		
@@ -58,13 +62,11 @@ public class Client {
 		} catch (NamingException e) {
 			throw new NoRegistryException("Naming Exception: " + e.getMessage());
 		}
-		System.out.println(stub);
+		
 		//call to server and receive player number
 		playerNum = stub.connectToServer(new ClientRemoteObject(this));
-		System.out.println("PlayerNum: " + playerNum);
-		if (playerNum == PlayerNum.INVALID_PLAYER) {
+		if (playerNum == PlayerNum.INVALID_PLAYER)
 			throw new FullServerException("Server refused to add player\n(Likely that server is full)");
-		}
 	}
 	
 	
@@ -74,23 +76,51 @@ public class Client {
 	
 	
 	public void updateKeyInput(int keyCode) throws RemoteException{
-		//Checking that keyinput is a valid direction
-		if (keyCode == KeyEvent.VK_UP || 
-				keyCode == KeyEvent.VK_DOWN || 
-				keyCode == KeyEvent.VK_LEFT || 
-				keyCode == KeyEvent.VK_RIGHT) {
-			//Checking that keyinput is a different input
-			if(keyCode != currentKeyCode) {
-				currentKeyCode = keyCode;
-				Direction newDirection = Direction.keyCode2Direction(keyCode);
-				stub.updateInput(newDirection, playerNum);
-				gameData.getPlayer(playerNum).setBufferDirection(newDirection);
+		if(state == PlayerState.ALIVE) {
+			//Checking that keyinput is a valid direction
+			if (keyCode == KeyEvent.VK_UP || 
+					keyCode == KeyEvent.VK_DOWN || 
+					keyCode == KeyEvent.VK_LEFT || 
+					keyCode == KeyEvent.VK_RIGHT) {
+				//Checking that keyinput is a different input
+				if(keyCode != currentKeyCode) {
+					currentKeyCode = keyCode;
+					Direction newDirection = Direction.keyCode2Direction(keyCode);
+					stub.updateInput(newDirection, playerNum);
+					gameData.getPlayer(playerNum).setBufferDirection(newDirection);
+				}
 			}
 		}
 	}
 	
-	public void startGame(int TICK_RATE) {
+	public void startGame(int TICK_RATE, long startTime) {
 		this.TICK_RATE = TICK_RATE;
+		//TODO implement count down
+		long timeToStart = startTime - System.currentTimeMillis();
+		new Timer().scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				int secondsToStart = (int)(startTime - System.currentTimeMillis());
+				//updating each output
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						//Update each gui
+						for(GameOutput output:outputs) {
+							output.genericPushMessage(String.valueOf(secondsToStart));
+						}
+					}
+				});
+				
+				if (secondsToStart==0) {
+					state = PlayerState.ALIVE;
+					
+				}
+			}
+			
+			
+		}, timeToStart%1000,1000);
+		
 		startGameTimer();
 	}
 	

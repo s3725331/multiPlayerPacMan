@@ -12,7 +12,4 @@ public interface ServerRemoteObjectInterface extends Remote {
 	PlayerNum connectToServer(ClientRemoteObjectInterface clientStub) throws RemoteException;
 	
 	void updateInput(Direction direction, PlayerNum playerNum) throws RemoteException;
-	
-	boolean gameStarted() throws RemoteException;
-
 }
