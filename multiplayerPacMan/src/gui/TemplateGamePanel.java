@@ -141,6 +141,7 @@ public class TemplateGamePanel extends JPanel{
 				g2D.drawImage(pacMan4, player.getX()*448, player.getY()*416, 32, 32, getBackground(), this);
 			}
 			
+			//Drawing ghost
 			//for(GhostData player:gameData.getGhosts()) {
 			//	g2D.drawImage(pacMan, gameData.getGhost().getX()*224, gameData.getGhost().getY()*224, 32, 32, getBackground(), this);
 			//}
