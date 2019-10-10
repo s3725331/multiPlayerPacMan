@@ -14,6 +14,7 @@ import game.GameData;
 import game.GameMap;
 import game.PlayerData;
 import game.Enumeration.BlockType;
+import game.GhostData;
 
 public class TemplateGamePanel extends JPanel{
 	private GameData gameData;
@@ -22,6 +23,11 @@ public class TemplateGamePanel extends JPanel{
 	//Images
 	//TODO add other images and change what image pacman is (its wall.png right now)
 	private BufferedImage pacMan;
+	private BufferedImage pacMan2;
+	private BufferedImage pacMan3;
+	private BufferedImage pacMan4;
+	private BufferedImage ghost;
+	private BufferedImage wall;
 	
 	public TemplateGamePanel(GameData gameData) {
 		this.gameData = gameData;
@@ -30,9 +36,49 @@ public class TemplateGamePanel extends JPanel{
 		//image loads
 		try {
 			//example image load
-			pacMan = ImageIO.read(new File("wall.png"));
+			pacMan = ImageIO.read(new File("player1.png"));
 			//TODO add other images for game
 			
+		} catch (IOException e) {
+			System.out.println("Image not found");
+		}
+		
+		try {
+
+			pacMan2 = ImageIO.read(new File("player2.png"));
+
+		} catch (IOException e) {
+			System.out.println("Image not found");
+		}
+		
+		try {
+
+			pacMan3 = ImageIO.read(new File("player3.png"));
+
+		} catch (IOException e) {
+			System.out.println("Image not found");
+		}
+		
+		try {
+
+			pacMan4 = ImageIO.read(new File("player4.png"));
+
+		} catch (IOException e) {
+			System.out.println("Image not found");
+		}
+		
+		try {
+
+			wall = ImageIO.read(new File("ghost.png"));
+
+		} catch (IOException e) {
+			System.out.println("Image not found");
+		}
+		
+		try {
+
+			wall = ImageIO.read(new File("wall.png"));
+
 		} catch (IOException e) {
 			System.out.println("Image not found");
 		}
@@ -59,7 +105,7 @@ public class TemplateGamePanel extends JPanel{
 		
 		//example of how to draw images to the panel
 		//drawImage(Image, x, y, horizontal size, vert size, background color, Image Observer)
-		g2D.drawImage(pacMan, 10, 10, 32, 32, getBackground(), this);
+		g2D.drawImage(wall, 10, 10, 32, 32, getBackground(), this);
 		
 		/*There a lots of over versions of drawImage() that you may find useful
 		 * There are also a lot of other draw methods you can use
@@ -78,19 +124,35 @@ public class TemplateGamePanel extends JPanel{
 			 * Needing the try blocks is kinda dumb and ill fix it at some point but for now its good enough
 			 */
 		
-			//Draws each player (as a wall)
+			//Draws each player
 			for(PlayerData player:gameData.getPlayers()) {
 				g2D.drawImage(pacMan, player.getX()*32, player.getY()*32, 32, 32, getBackground(), this);
 			}
 			
-			g2D.drawImage(pacMan, gameData.getGhost().getX()*32, gameData.getGhost().getY()*32, 32, 32, getBackground(), this);
+			for(PlayerData player:gameData.getPlayers()) {
+				g2D.drawImage(pacMan2, player.getX()*448, player.getY()*32, 32, 32, getBackground(), this);
+			}
+			
+			for(PlayerData player:gameData.getPlayers()) {
+				g2D.drawImage(pacMan3, player.getX()*32, player.getY()*416, 32, 32, getBackground(), this);
+			}
+			
+			for(PlayerData player:gameData.getPlayers()) {
+				g2D.drawImage(pacMan4, player.getX()*448, player.getY()*416, 32, 32, getBackground(), this);
+			}
+			
+			//for(GhostData player:gameData.getGhosts()) {
+			//	g2D.drawImage(pacMan, gameData.getGhost().getX()*224, gameData.getGhost().getY()*224, 32, 32, getBackground(), this);
+			//}
+			
+			
 			
 			//Draws walls
 			for(int i = 0; i< map.getHeight();i++) {
 				for(int j = 0; j< map.getWidth();j++) {
 					BlockType block = map.getBlockAt(j, i);
 					if(block == BlockType.WALL)
-						g2D.drawImage(pacMan, j*32, i*32, 32, 32, getBackground(), this);
+						g2D.drawImage(wall, j*32, i*32, 32, 32, getBackground(), this);
 				}
 			}
 			
