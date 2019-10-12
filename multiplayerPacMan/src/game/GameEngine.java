@@ -21,10 +21,13 @@ public class GameEngine {
 				minDistance = currentPath.size();
 				minPath = currentPath;
 			}
-
+			for(int i = 0; i < currentPath.size(); i++)
+			gameState.getGhost().setPos(currentPath.get(i));
 		}
 
 		minPath.get(0);
+		
+		
 
 		gameState.gameTick();
 	}
@@ -122,6 +125,7 @@ public class GameEngine {
 
 		// find end Node
 		return aStar.findPath();
+		
 	}
 
 }
