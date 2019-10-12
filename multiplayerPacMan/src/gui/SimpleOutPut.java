@@ -30,17 +30,19 @@ public class SimpleOutPut extends JFrame implements GameOutput{
 		gameText.setFont(new Font("Courier", Font.PLAIN, 18));
 		add(gameText);
 		
-		this.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyPressed(KeyEvent keyCode) {
-				try {
-				client.updateKeyInput(keyCode.getKeyCode());
-				} catch(Exception e) {
-					
-				}	
-			}
-		});
+		if(client != null) {
+			this.addKeyListener(new KeyAdapter() {
+	
+				@Override
+				public void keyPressed(KeyEvent keyCode) {
+					try {
+					client.updateKeyInput(keyCode.getKeyCode());
+					} catch(Exception e) {
+						
+					}	
+				}
+			});
+		}
 		
 		/*
 		//defining guiUpdater
@@ -104,6 +106,10 @@ public class SimpleOutPut extends JFrame implements GameOutput{
 			}
 			
 			output = output.substring(0,stringIndex) + playerNum + output.substring(stringIndex+1);
+			
+			int ghostIndex = gameState.getGhost().getX() + (mapWidth + 1) * gameState.getGhost().getY();
+			
+			output = output.substring(0,ghostIndex) + "g" + output.substring(ghostIndex+1);
 			
 		}
 		
