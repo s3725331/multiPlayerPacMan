@@ -2,7 +2,7 @@ package game;
 
 import java.io.Serializable;
 
-import aStarAlgorithm.Node;
+import AStar.Node;
 import game.Enumeration.Direction;
 
 public class GhostData implements Serializable{
@@ -36,7 +36,7 @@ public class GhostData implements Serializable{
 	}
 	
 	public void setPos(Node node) {
-		x = node.getRow();
-		y = node.getCol();
+		y = node.getRow();
+		x = node.getCol();
 	}
 }

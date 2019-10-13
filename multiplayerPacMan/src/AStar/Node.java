@@ -1,4 +1,4 @@
-package AStart;
+package AStar;
 
 public class Node {
 

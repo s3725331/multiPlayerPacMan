@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import game.Enumeration.PlayerNum;
+import game.Enumeration.PlayerState;
 
 public class GameData implements Serializable{
 	/**
@@ -15,13 +16,16 @@ public class GameData implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private int numPlayers;
 	private int gameTick;
+	private GameMap map;
 	private Map<PlayerNum, PlayerData> players = new HashMap<PlayerNum, PlayerData>();
 	private GhostData ghost;
 	
 	
 	public GameData() {
 		numPlayers = 0;
-		ghost = new GhostData(5,1);
+		map = new GameMap();
+		int[] ghostPos = map.getStartingGhostPos();
+		ghost = new GhostData(ghostPos[0],ghostPos[1]);
 	}
 	
 	public int getNumPlayers() {
@@ -40,9 +44,15 @@ public class GameData implements Serializable{
 		PlayerNum playerNum;
 		if((playerNum = PlayerNum.numToPlayerNum(numPlayers+1)) != PlayerNum.INVALID_PLAYER) {
 			numPlayers++;
-			players.put(playerNum, new PlayerData(playerNum, 1, 1));	
+			
+			int[] pos = map.getStartingPos(playerNum);
+			players.put(playerNum, new PlayerData(playerNum, pos[0], pos[1], PlayerState.WAITING));	
 		}
 		return playerNum;
+	}
+	
+	public void removePlayer(PlayerNum playerNum) {
+		players.remove(playerNum);
 	}
 	
 	public PlayerData getPlayer(PlayerNum playerNum) {

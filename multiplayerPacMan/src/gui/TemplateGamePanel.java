@@ -14,6 +14,7 @@ import game.GameData;
 import game.GameMap;
 import game.PlayerData;
 import game.Enumeration.BlockType;
+import game.Enumeration.PlayerState;
 import game.GhostData;
 
 public class TemplateGamePanel extends JPanel{
@@ -69,7 +70,7 @@ public class TemplateGamePanel extends JPanel{
 		
 		try {
 
-			wall = ImageIO.read(new File("ghost.png"));
+			ghost = ImageIO.read(new File("ghost.png"));
 
 		} catch (IOException e) {
 			System.out.println("Image not found");
@@ -105,7 +106,7 @@ public class TemplateGamePanel extends JPanel{
 		
 		//example of how to draw images to the panel
 		//drawImage(Image, x, y, horizontal size, vert size, background color, Image Observer)
-		g2D.drawImage(wall, 10, 10, 32, 32, getBackground(), this);
+		//g2D.drawImage(wall, 10, 10, 32, 32, getBackground(), this);
 		
 		/*There a lots of over versions of drawImage() that you may find useful
 		 * There are also a lot of other draw methods you can use
@@ -126,9 +127,11 @@ public class TemplateGamePanel extends JPanel{
 		
 			//Draws each player
 			for(PlayerData player:gameData.getPlayers()) {
-				g2D.drawImage(pacMan, player.getX()*32, player.getY()*32, 32, 32, getBackground(), this);
+				if(player.state != PlayerState.DEAD)
+					g2D.drawImage(pacMan, player.getX()*32, player.getY()*32, 32, 32, getBackground(), this);
 			}
 			
+			/*
 			for(PlayerData player:gameData.getPlayers()) {
 				g2D.drawImage(pacMan2, player.getX()*448, player.getY()*32, 32, 32, getBackground(), this);
 			}
@@ -139,14 +142,15 @@ public class TemplateGamePanel extends JPanel{
 			
 			for(PlayerData player:gameData.getPlayers()) {
 				g2D.drawImage(pacMan4, player.getX()*448, player.getY()*416, 32, 32, getBackground(), this);
-			}
+			}*/
 			
 			//Drawing ghost
 			//for(GhostData player:gameData.getGhosts()) {
 			//	g2D.drawImage(pacMan, gameData.getGhost().getX()*224, gameData.getGhost().getY()*224, 32, 32, getBackground(), this);
 			//}
 			
-			
+			//Draw ghost
+			g2D.drawImage(ghost, gameData.getGhost().getX()*32, gameData.getGhost().getY()*32, 32, 32, getBackground(), this);
 			
 			//Draws walls
 			for(int i = 0; i< map.getHeight();i++) {

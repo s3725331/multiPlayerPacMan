@@ -20,6 +20,11 @@ public class ServerRemoteObject extends UnicastRemoteObject implements ServerRem
 	public PlayerNum connectToServer(ClientRemoteObjectInterface clientStub) throws RemoteException{
 		return server.addNewClient(clientStub);
 	}
+	
+	@Override
+	public void disconnectFromServer(PlayerNum playerNum) throws RemoteException {
+		server.dropPlayer(playerNum);
+	}
 
 	@Override
 	public void updateInput(Direction direction, PlayerNum playerNum) throws RemoteException{

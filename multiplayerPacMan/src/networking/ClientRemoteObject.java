@@ -17,6 +17,10 @@ public class ClientRemoteObject extends UnicastRemoteObject implements ClientRem
 		this.client = client;
 	}
 
+	@Override
+	public void setPlayerNumber(PlayerNum playerNum) throws RemoteException {
+		client.setPlayerNum(playerNum);
+	}
 
 	@Override
 	public void sendGameData(GameData gameData) throws RemoteException {
@@ -30,5 +34,13 @@ public class ClientRemoteObject extends UnicastRemoteObject implements ClientRem
 		client.startGame(TICK_RATE, startTime);
 		
 	}
+	
+	@Override
+	public void endGame(PlayerNum winner) throws RemoteException {
+		client.endGame(winner);
+	}
+
+
+	
 	
 }

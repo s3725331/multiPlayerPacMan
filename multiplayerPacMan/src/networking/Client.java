@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -31,25 +32,45 @@ public class Client {
 	private ServerRemoteObjectInterface stub;
 	private PlayerNum playerNum;
 	
-	private PlayerState state;
-	
 	private GameData gameData;
 	private int gameTick;
 	private int lastServerTick;
 	private int currentKeyCode;
 	
-	private Timer updater;
+	private Timer localUpdater;
+	private Timer guiUpdater;
 	
 	private Collection<GameOutput> outputs = new HashSet<GameOutput>(); 
 	
 	public Client (String hostName) throws NoRegistryException, FullServerException, RemoteException{
 		connectToServer(hostName);
+		//-1 denoting pre game lobby
+		gameTick = -1;
+		lastServerTick = -1;
 		
-		gameTick = 0;
 		currentKeyCode = KeyEvent.VK_UNDEFINED;
-		state = PlayerState.WAITING;
+		gameData = new GameData();
 		
-		//TODO instantiating gameData (will depend on how loby is set up)
+		
+		
+		//defining guiUpdater
+		guiUpdater = new Timer();
+		guiUpdater.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				//updating each output
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						//Update each gui
+						for(GameOutput output:outputs)
+							output.updateGame(gameData);
+					}
+				});
+			}
+			
+			
+		}, 0, 1000/FRAME_RATE);
 		
 	}
 	
@@ -74,9 +95,21 @@ public class Client {
 		outputs.add(output);
 	}
 	
+	public void quitGame() {
+		try {
+			stub.disconnectFromServer(playerNum);
+		} catch (RemoteException e) {
+			System.out.println("100");
+			System.out.println(e);
+		}
+		//Ending timers, class is dead
+		guiUpdater.cancel();
+		localUpdater.cancel();
+	}
+	
 	
 	public void updateKeyInput(int keyCode) throws RemoteException{
-		if(state == PlayerState.ALIVE) {
+		if(gameData.getPlayer(playerNum).state == PlayerState.ALIVE) {
 			//Checking that keyinput is a valid direction
 			if (keyCode == KeyEvent.VK_UP || 
 					keyCode == KeyEvent.VK_DOWN || 
@@ -95,37 +128,46 @@ public class Client {
 	
 	public void startGame(int TICK_RATE, long startTime) {
 		this.TICK_RATE = TICK_RATE;
-		//TODO implement count down
-		long timeToStart = startTime - System.currentTimeMillis();
-		new Timer().scheduleAtFixedRate(new TimerTask() {
+		long msToStart = startTime - System.currentTimeMillis();
+		int secondsToStart = (int) Math.ceil(msToStart/1000.0);
+		gameTick = -1;
+		lastServerTick = -1;
+		
+		//Setting timer to start in sync with server
+		new Timer().schedule(new TimerTask() {
 			@Override
 			public void run() {
-				int secondsToStart = (int)(startTime - System.currentTimeMillis());
-				//updating each output
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						//Update each gui
-						for(GameOutput output:outputs) {
-							output.genericPushMessage(String.valueOf(secondsToStart));
-						}
-					}
-				});
-				
-				if (secondsToStart==0) {
-					state = PlayerState.ALIVE;
-					
-				}
+				startGameTimer();
 			}
-			
-			
-		}, timeToStart%1000,1000);
+		}, startTime - System.currentTimeMillis());
 		
-		startGameTimer();
+		
+		//Setting timer to count down to start
+		new Timer().scheduleAtFixedRate(new CountDownTimer(secondsToStart), 
+				(startTime - System.currentTimeMillis())%1000, 1000);
+		
+		
+	}
+	
+	public void endGame(PlayerNum winner) {
+		System.out.println(winner + " won");
+		for(GameOutput output: outputs)
+			output.genericPushMessage(String.valueOf(winner + " won"));
+		localUpdater.cancel();
 	}
 	
 	public void setGameData(GameData gameData) {
-		this.gameData = gameData;
+		//Ensuring no out of order game data is used
+		if(gameData.getTick() > lastServerTick) {
+			this.gameData = gameData;
+			lastServerTick = gameData.getTick();
+			
+			//Predicting forward if necessary 
+			while(this.gameData.getTick() < gameTick) {
+				this.gameData.gameTick();
+			}
+		}
+		
 	}
 	
 	public GameData getGameData() {
@@ -136,35 +178,37 @@ public class Client {
 		return playerNum;
 	}
 	
+	public void setPlayerNum(PlayerNum playerNum) {
+		this.playerNum = playerNum;
+	}
+	
 	public int getCurrentKey() {
 		return currentKeyCode;
 	}
 	
 	private void startGameTimer() {
-		System.out.println("startGameTimer");
+		System.out.println(playerNum + " startGame");
 		
-		gameData = new GameData();
+		gameData.getPlayer(playerNum).state = PlayerState.ALIVE;
+		
+		gameTick = 0;
 		lastServerTick = 0;
 		
-		//defining guiUpdater
-		
-		new Timer().scheduleAtFixedRate(new TimerTask() {
+		//Schedule local updates
+		localUpdater = new Timer();
+		localUpdater.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				//updating each output
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						//Update each gui
-						for(GameOutput output:outputs)
-							output.updateGame(gameData);
-					}
-				});
+				gameTick++;
+				while(gameData.getTick()<gameTick) {
+					//Update gameData locally waiting for server
+					gameData.gameTick();
+				}
+					
 			}
 			
 			
-		}, 0, 1000/FRAME_RATE);
-		
+		}, 0, TICK_RATE);
 		
 		
 		/*updater = new Timer();
@@ -210,5 +254,39 @@ public class Client {
 			}
 		} , 0, TICK_RATE);*/
 	}
+	
+	public class CountDownTimer extends TimerTask {
+		int count;
+		
+		public CountDownTimer(int initialCount) {
+			this.count = initialCount;
+		}
+		
+		@Override
+		public void run() {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					//Update each gui with count down
+					for(GameOutput output:outputs) {
+						if(count>0 && count <= 3) {
+							output.genericPushMessage(String.valueOf(count));
+							System.out.println(playerNum + " " + count);
+						} else if(count==0){
+							output.genericPushMessage(String.valueOf("Go"));
+							System.out.println(playerNum + " GO,");
+						}
+					}
+				}
+			});
+	
+			count--;
+			
+			//ending timer
+			if(count<0)
+				this.cancel();
+		}
+	}
 
+	
 }

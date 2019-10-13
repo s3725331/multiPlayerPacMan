@@ -2,28 +2,43 @@ package game;
 
 import java.util.List;
 
-import aStarAlgorithm.AStar;
-import aStarAlgorithm.Node;
+import AStar.AStar;
+import AStar.Node;
 import game.Enumeration.BlockType;
+import game.Enumeration.PlayerState;
 
 public class GameEngine {
 	private static GameMap map = new GameMap();
 
 	public static void updateGame(GameData gameState) {
+		GhostData ghost = gameState.getGhost();
 
 		int minDistance = 1000;
 		List<Node> minPath = null;
 		for (PlayerData player : gameState.getPlayers()) {
-			movementUpdate(player);
-
-			List<Node> currentPath = ghostMovementUpdate(gameState.getGhost(), player);
-			if (currentPath.size() < minDistance) {
-				minDistance = currentPath.size();
-				minPath = currentPath;
+			if(player.state == PlayerState.ALIVE) {
+				movementUpdate(player);
+				
+				//Checking if player hits ghost
+				if(player.getX() == ghost.getX() && player.getY() == ghost.getY()) {
+					player.state = PlayerState.DEAD;
+				}else {
+					//Getting path from ghost to player
+					List<Node> currentPath = ghostMovementUpdate(ghost, player);
+					//Updating minPath if current player is closest to ghost
+					if (currentPath.size() < minDistance) {
+						minDistance = currentPath.size();
+						minPath = currentPath;
+					}
+				}
 			}
+		}
+		ghost.setPos(minPath.get(1));
 
-			gameState.getGhost().setPos(minPath.get(1));
-			
+		//Checking if player hits ghost after ghost moves
+		for (PlayerData player : gameState.getPlayers()) {
+			if(player.getX() == ghost.getX() && player.getY() == ghost.getY())
+				player.state = PlayerState.DEAD;
 		}
 
 		gameState.gameTick();
@@ -110,13 +125,13 @@ public class GameEngine {
 	}
 
 	private static List<Node> ghostMovementUpdate(GhostData ghost, PlayerData player) {
-		Node startNode = new Node(ghost.getX(), ghost.getY());
-		Node endNode = new Node(player.getX(), player.getY());
+		Node startNode = new Node(ghost.getY(), ghost.getX());
+		Node endNode = new Node(player.getY(), player.getX());
 		int rows = map.getHeight();
 		int cols = map.getWidth();
 
 		AStar aStar = new AStar(rows, cols, startNode, endNode);
-
+		
 		// set walls
 		aStar.setBlocks(map.getWallCoords());
 

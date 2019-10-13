@@ -8,19 +8,24 @@ import java.rmi.registry.Registry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import game.GameEngine;
+import game.PlayerData;
 import game.GameData;
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
+import game.Enumeration.PlayerState;
 import game.Enumeration.ServerState;
 import game.interfaces.ClientRemoteObjectInterface;
 import game.interfaces.GameOutput;
@@ -40,7 +45,7 @@ public class Server{
 
 	private Collection<GameOutput> outputs = new HashSet<GameOutput>(); 
 	
-	private Collection<ClientRemoteObjectInterface> clientStubs = new HashSet<ClientRemoteObjectInterface>();
+	private Map<PlayerNum,ClientRemoteObjectInterface> clientStubs = new HashMap<PlayerNum,ClientRemoteObjectInterface>();
 	
 	
 	
@@ -66,58 +71,6 @@ public class Server{
 		
 		restartServer();
 		
-	}
-	
-	public void restartServer() {
-		//
-		state = ServerState.WAITING;
-		gameData = new GameData();
-		
-		clientStubs.clear();
-	}
-	
-	public PlayerNum addNewClient(ClientRemoteObjectInterface clientStub) {
-		//Adding new player to gamedata, adding client stub if player is added to gamedata
-		PlayerNum newPlayerNum = gameData.addPlayer();
-		if (newPlayerNum != PlayerNum.INVALID_PLAYER)
-			clientStubs.add(clientStub);
-		return newPlayerNum;
-	}
-	
-	public void updateClientInput(Direction direction,PlayerNum playerNum) {
-		gameData.getPlayer(playerNum).setBufferDirection(direction);
-	}
-	
-	public void startGame() {
-		state = ServerState.PLAYING;
-		//Setting state for all clients
-		for(ClientRemoteObjectInterface clientStub:clientStubs) {
-			try {
-				clientStub.startGame(TICK_RATE,System.currentTimeMillis()+5000);
-			} catch (Exception e) {
-				System.out.println(e);
-			}
-		}
-		
-		
-		//defining clientSideGameUpdater
-		serverSideGameUpdate = new Timer();
-		serverSideGameUpdate.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				//Updating game
-				GameEngine.updateGame(gameData);
-				//Sending gameData to each client
-				for(ClientRemoteObjectInterface clientStub:clientStubs) {
-					try {
-						clientStub.sendGameData(gameData);
-					} catch (Exception e) {
-						System.out.println(e);
-					}
-				}
-			}
-		}, 0, TICK_RATE);
-		
 		
 		//Updating gui for server
 		new Timer().scheduleAtFixedRate(new TimerTask() {
@@ -135,6 +88,171 @@ public class Server{
 			}
 			
 		}, 0, 1000/FRAME_RATE);
+		
+	}
+	
+	public void restartServer() {
+		//
+		state = ServerState.WAITING;
+		gameData = new GameData();
+		
+		clientStubs.clear();
+	}
+	
+	public void newGame() {
+		//Reseting vars
+		GameData newGame = new GameData();
+		Map<PlayerNum,ClientRemoteObjectInterface> newStubs = new HashMap<PlayerNum,ClientRemoteObjectInterface>();
+		
+		for(PlayerNum playerNum: clientStubs.keySet()) {
+			ClientRemoteObjectInterface currentStub = clientStubs.get(playerNum);
+			//Adding player to new gameData
+			PlayerNum newPlayerNum = newGame.addPlayer();
+			//Copying client Stub to new stubs w/ new playerNum
+			newStubs.put(newPlayerNum, currentStub);
+			
+			if(playerNum!=newPlayerNum) {
+				try {
+					currentStub.setPlayerNumber(newPlayerNum);
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					System.out.println("119");
+					System.out.println(e);
+				}
+			}
+		}
+		
+		gameData = newGame;
+		clientStubs = newStubs;
+		
+		startCountDown();
+	}
+	
+	public PlayerNum addNewClient(ClientRemoteObjectInterface clientStub) {
+		PlayerNum newPlayerNum = PlayerNum.INVALID_PLAYER;
+		if(state == ServerState.WAITING) {
+			//Adding new player to gamedata, adding client stub if player is added to gamedata
+			newPlayerNum = gameData.addPlayer();
+			
+			if (newPlayerNum != PlayerNum.INVALID_PLAYER) {
+				clientStubs.put(newPlayerNum,clientStub);
+				
+				//sending gamedata to each client
+				for(ClientRemoteObjectInterface clients:clientStubs.values()) {
+					try {
+						clients.sendGameData(gameData);
+					} catch (Exception e) {
+						System.out.println("93");
+						System.out.println(e);
+					}
+				}
+			}
+			
+		}
+		
+		return newPlayerNum;
+	}
+	
+	public void dropPlayer(PlayerNum playerNum) {
+		clientStubs.remove(playerNum);
+		gameData.removePlayer(playerNum);
+	}
+	
+	public void updateClientInput(Direction direction,PlayerNum playerNum) {
+		gameData.getPlayer(playerNum).setBufferDirection(direction);
+	}
+	
+	public void startCountDown() {
+		long startTime = System.currentTimeMillis()+5000;
+		//Setting state for all clients
+		for(ClientRemoteObjectInterface clientStub:clientStubs.values()) {
+			try {
+				//Send final game data and notify clients of start time
+				clientStub.startGame(TICK_RATE,startTime);
+				
+				clientStub.sendGameData(gameData);
+					
+			} catch (Exception e) {
+				System.out.println("117");
+				System.out.println(e);
+			}
+		}
+		
+		//Set start game timer
+		new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				//Starting game
+				state = ServerState.PLAYING;
+				System.out.println("Start Server");
+				for(PlayerData player:gameData.getPlayers()) {
+					player.state = PlayerState.ALIVE;
+				}
+				
+				startGame();
+			}
+		},startTime - System.currentTimeMillis());
+	}
+	
+	public void startGame() {
+		//defining clientSideGameUpdater
+		serverSideGameUpdate = new Timer();
+		serverSideGameUpdate.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				//Updating game
+				GameEngine.updateGame(gameData);
+				
+				//TODO test if only one player left alive...
+				
+				//Sending gameData to each client
+				for(ClientRemoteObjectInterface clientStub:clientStubs.values()) {
+					try {
+						clientStub.sendGameData(gameData);
+					} catch (Exception e) {
+						System.out.println("208");
+						System.out.println(e);
+					}
+				}
+				
+				//Testing if a player has won (only one alive)
+				int numPlayersAlive = 0;
+				PlayerNum winner = PlayerNum.INVALID_PLAYER;
+				for(PlayerData player:gameData.getPlayers()) {
+					if(player.state == PlayerState.ALIVE) {
+						numPlayersAlive++;
+						winner = player.getPlayerNum();
+					}
+				}
+				
+				if(numPlayersAlive == 1) {
+					state = ServerState.END_LOBY;
+					serverSideGameUpdate.cancel();
+					//Updating player states
+					for(PlayerData player: gameData.getPlayers())
+						player.state = PlayerState.END_LOBY;
+					//informing clients of end game
+					for(ClientRemoteObjectInterface clientStub: clientStubs.values()) {
+						try {
+							clientStub.sendGameData(gameData);
+							clientStub.endGame(winner);
+						} catch (RemoteException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+					if (JOptionPane.showConfirmDialog(null, 
+				            "Start new game?", "New Game?", 
+				            JOptionPane.YES_NO_OPTION,
+				            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+				           	newGame();
+				        }
+				}
+			}
+		}, 0, TICK_RATE);
+		
+				
 	}
 	
 	public GameData getGameData() {
@@ -154,7 +272,7 @@ public class Server{
 	}
 	
 	public Collection<ClientRemoteObjectInterface> getClientStubs() {
-		return clientStubs;
+		return clientStubs.values();
 	}
 
 	public void terminateSever() throws Throwable {

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import game.Enumeration.Direction;
 import game.Enumeration.PlayerNum;
+import game.Enumeration.PlayerState;
 
 public class PlayerData implements Serializable{
 	/**
@@ -15,11 +16,13 @@ public class PlayerData implements Serializable{
 	private Direction direction = Direction.NO_DIRECTION;
 	private Direction bufferDirection = Direction.NO_DIRECTION;
 	private PlayerNum playerNum;
+	public PlayerState state;
 	
-	public PlayerData(PlayerNum playerNum,int x,int y) {
+	public PlayerData(PlayerNum playerNum, int x, int y, PlayerState state) {
 		this.playerNum = playerNum;
 		this.x = x;
 		this.y = y;
+		this.state = state;
 	}
 
 	public void setBufferDirection(Direction direction) {
