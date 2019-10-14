@@ -16,6 +16,7 @@ public class testLauncher {
 			server.registerOutput(new SimpleOutPut(null, "Server"));
 			serverIp = server.getHostAddress();
 			
+			
 			/*//Test Launch
 			Thread serverThread = new Thread();
 			serverThread.{
@@ -40,7 +41,7 @@ public class testLauncher {
 			SimpleOutPut output = new SimpleOutPut(client);
 			client.registerOutput(output);
 			*/
-			Client client = new Client(serverIp);
+			Client client = new Client(server.getHostAddress());
 			client.registerOutput(new TemplateFrame(client,client.getPlayerNum().toString()));
 			
 			Client client2 = new Client(server.getHostAddress());

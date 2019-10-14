@@ -99,7 +99,7 @@ public class Server{
 		clientStubs.clear();
 	}
 	
-	public void newGame() {
+	private void newGame() {
 		//Reseting vars
 		GameData newGame = new GameData();
 		Map<PlayerNum,ClientRemoteObjectInterface> newStubs = new HashMap<PlayerNum,ClientRemoteObjectInterface>();
@@ -194,7 +194,7 @@ public class Server{
 		},startTime - System.currentTimeMillis());
 	}
 	
-	public void startGame() {
+	private void startGame() {
 		//defining clientSideGameUpdater
 		serverSideGameUpdate = new Timer();
 		serverSideGameUpdate.scheduleAtFixedRate(new TimerTask() {

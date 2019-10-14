@@ -34,18 +34,30 @@ public class launch {
 		
 		if (serverOption == "host") {
 			String serverIp;
+			Server server;
 			try {
-				Server server = new Server();
+				server = new Server();
 				serverIp = server.getHostAddress();
 				server.registerOutput(new SimpleOutPut(null, serverIp));
+				Client client = new Client(serverIp);
+				client.registerOutput(new TemplateFrame(client,client.getPlayerNum().toString()));
 				System.out.println("The host address is " + serverIp);
+				
+				boolean start = false;
+				while(!start) {
+					System.out.println("Press any key to start:");
+					player.nextLine();
+					if(server.getGameData().getNumPlayers() > 1) {
+						start = true;
+						server.startCountDown();
+					}
+				}
 			} catch (Exception e) {
 				System.out.println(e);
-			}
-			
-			
-			
+			}	
 		}
+			
+			
 		
 		if (serverOption == "join") {
 			try {
