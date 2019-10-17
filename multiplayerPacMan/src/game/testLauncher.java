@@ -3,7 +3,7 @@ package game;
 import java.util.Scanner;
 
 import gui.SimpleOutPut;
-import gui.TemplateFrame;
+import gui.GameFrame;
 import networking.Client;
 import networking.Server;
 
@@ -42,13 +42,13 @@ public class testLauncher {
 			client.registerOutput(output);
 			*/
 			Client client = new Client(server.getHostAddress());
-			client.registerOutput(new TemplateFrame(client,client.getPlayerNum().toString()));
+			client.registerOutput(new GameFrame(client,client.getPlayerNum().toString()));
 			
 			Client client2 = new Client(server.getHostAddress());
-			client2.registerOutput(new TemplateFrame(client2,client2.getPlayerNum().toString()));
+			client2.registerOutput(new GameFrame(client2,client2.getPlayerNum().toString()));
 			
 			Client client3 = new Client(server.getHostAddress());
-			client3.registerOutput(new TemplateFrame(client3,client3.getPlayerNum().toString()));
+			client3.registerOutput(new GameFrame(client3,client3.getPlayerNum().toString()));
 			/*Client client4 = new Client(server.getHostAddress());
 			client4.registerOutput(new TemplateFrame(client4,client4.getPlayerNum().toString()));
 			*/

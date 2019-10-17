@@ -3,7 +3,7 @@ import java.util.Scanner;
 import java.util.regex.*;
 
 import gui.SimpleOutPut;
-import gui.TemplateFrame;
+import gui.GameFrame;
 import networking.Client;
 import networking.Server;
 
@@ -12,7 +12,7 @@ public class launch {
 	public static void main(String[] args) {
 
 		Scanner player = new Scanner(System.in);
-		Scanner address = new Scanner(System.in);
+		//Scanner address = new Scanner(System.in);
 		
 		System.out.println("Welcome to the Multiplayer Pacman Game");
 		System.out.println("Before we get started. Could you please tell us your name:");
@@ -29,7 +29,7 @@ public class launch {
 		
 		while (serverOption == "join" && ipAddress == null) {
 			System.out.println("Please input the host's IP address");
-			ipAddress = validateIPaddress(address.nextLine());
+			ipAddress = validateIPaddress(player.nextLine());
 		}
 		
 		if (serverOption == "host") {
@@ -40,7 +40,7 @@ public class launch {
 				serverIp = server.getHostAddress();
 				server.registerOutput(new SimpleOutPut(null, serverIp));
 				Client client = new Client(serverIp);
-				client.registerOutput(new TemplateFrame(client,client.getPlayerNum().toString()));
+				client.registerOutput(new GameFrame(client,client.getPlayerNum().toString()));
 				System.out.println("The host address is " + serverIp);
 				
 				boolean start = false;
@@ -62,7 +62,7 @@ public class launch {
 		if (serverOption == "join") {
 			try {
 				Client client = new Client(ipAddress);
-				client.registerOutput(new TemplateFrame(client,client.getPlayerNum().toString()));				
+				client.registerOutput(new GameFrame(client,client.getPlayerNum().toString()));				
 			} catch (Exception e) {
 				System.out.println(e);
 			}

@@ -51,6 +51,18 @@ public class GameData implements Serializable{
 		return playerNum;
 	}
 	
+	public PlayerNum addPlayer(PlayerNum playerNum) {
+		if(players.get(playerNum) == null) {
+			numPlayers++;
+			
+			int[] pos = map.getStartingPos(playerNum);
+			players.put(playerNum, new PlayerData(playerNum, pos[0], pos[1], PlayerState.WAITING));
+		}else {
+			playerNum = PlayerNum.INVALID_PLAYER;
+		}
+		return playerNum;
+	}
+	
 	public void removePlayer(PlayerNum playerNum) {
 		players.remove(playerNum);
 	}

@@ -150,9 +150,10 @@ public class Client {
 	}
 	
 	public void endGame(PlayerNum winner) {
+		
 		System.out.println(winner + " won");
 		for(GameOutput output: outputs)
-			output.genericPushMessage(String.valueOf(winner + " won"));
+			output.setWinState(playerNum == winner);
 		localUpdater.cancel();
 	}
 	
@@ -164,6 +165,7 @@ public class Client {
 			
 			//Predicting forward if necessary 
 			while(this.gameData.getTick() < gameTick) {
+				System.out.println("Prodicting foward");
 				this.gameData.gameTick();
 			}
 		}
@@ -209,50 +211,6 @@ public class Client {
 			
 			
 		}, 0, TICK_RATE);
-		
-		
-		/*updater = new Timer();
-		updater.scheduleAtFixedRate(new TimerTask() {
-			
-			
-			@Override
-			public void run() {
-				System.out.println(playerNum + ": run game update");
-				System.out.println(playerNum + ":Tick: " + gameData.getTick());
-				try{
-					System.out.println(playerNum + ":Player Pos: " + 
-							gameData.getPlayer(playerNum).getX()
-							+ ", " + gameData.getPlayer(playerNum).getY());}
-				catch(Exception e) {
-					System.out.println(e);
-				}
-				
-				gameTick++;
-				//Update gameData (Should only happen once)
-				while (gameData.getTick() < gameTick) {
-					System.out.println(playerNum + ":Client Game Tick");
-					GameEngine.updateGame(gameData);
-				}
-				
-				
-				try {
-					//Get newest gameData from server
-					GameData serverState = stub.requestGameData();
-					if(serverState.getTick() >= lastServerTick) {
-						gameData = serverState;
-						lastServerTick = gameData.getTick();
-					}
-								
-				} catch(Exception e) {
-					System.out.println(e);
-				}
-				//Predict forward if gameData old
-				while (gameData.getTick() < gameTick) {
-					System.out.println(playerNum + ":Post-Server Game Tick");
-					GameEngine.updateGame(gameData);
-				}
-			}
-		} , 0, TICK_RATE);*/
 	}
 	
 	public class CountDownTimer extends TimerTask {

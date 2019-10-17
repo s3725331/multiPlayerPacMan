@@ -102,28 +102,13 @@ public class Server{
 	private void newGame() {
 		//Reseting vars
 		GameData newGame = new GameData();
-		Map<PlayerNum,ClientRemoteObjectInterface> newStubs = new HashMap<PlayerNum,ClientRemoteObjectInterface>();
-		
 		for(PlayerNum playerNum: clientStubs.keySet()) {
-			ClientRemoteObjectInterface currentStub = clientStubs.get(playerNum);
-			//Adding player to new gameData
-			PlayerNum newPlayerNum = newGame.addPlayer();
-			//Copying client Stub to new stubs w/ new playerNum
-			newStubs.put(newPlayerNum, currentStub);
 			
-			if(playerNum!=newPlayerNum) {
-				try {
-					currentStub.setPlayerNumber(newPlayerNum);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					System.out.println("119");
-					System.out.println(e);
-				}
-			}
+			//Adding player to new gameData
+			PlayerNum newPlayerNum = newGame.addPlayer(playerNum);
 		}
 		
 		gameData = newGame;
-		clientStubs = newStubs;
 		
 		startCountDown();
 	}
@@ -183,18 +168,21 @@ public class Server{
 			@Override
 			public void run() {
 				//Starting game
-				state = ServerState.PLAYING;
-				System.out.println("Start Server");
-				for(PlayerData player:gameData.getPlayers()) {
-					player.state = PlayerState.ALIVE;
-				}
-				
 				startGame();
 			}
 		},startTime - System.currentTimeMillis());
 	}
 	
 	private void startGame() {
+		//Updating data
+		state = ServerState.PLAYING;
+		System.out.println("Start Server");
+		for(PlayerData player:gameData.getPlayers()) {
+			player.state = PlayerState.ALIVE;
+		}
+		
+		
+		
 		//defining clientSideGameUpdater
 		serverSideGameUpdate = new Timer();
 		serverSideGameUpdate.scheduleAtFixedRate(new TimerTask() {

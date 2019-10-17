@@ -10,11 +10,11 @@ import game.GameData;
 import game.interfaces.GameOutput;
 import networking.Client;
 
-public class TemplateFrame extends JFrame implements GameOutput{
-	private TemplateGamePanel gamePanel;
+public class GameFrame extends JFrame implements GameOutput{
+	private GamePanel gamePanel;
 	
 	
-	public TemplateFrame(Client client, String title) {
+	public GameFrame(Client client, String title) {
 		//Setting game window tile
 		setTitle(title);
 		//Sets size/position of game window (x1,y1,x2,y2)
@@ -24,7 +24,7 @@ public class TemplateFrame extends JFrame implements GameOutput{
 		
 		
 		//Adding gamePanel to center of screen
-		gamePanel = new TemplateGamePanel(client.getGameData());
+		gamePanel = new GamePanel(client.getGameData());
 		add(gamePanel,BorderLayout.CENTER);
 		
 		//Catches keyboard inputs and gives them to client
@@ -60,13 +60,16 @@ public class TemplateFrame extends JFrame implements GameOutput{
 
 	@Override
 	public void setWinState(boolean win) {
-		// TODO Auto-generated method stub
+		if(win)
+			gamePanel.updateDisplayString("You Win!!");
+		else
+			gamePanel.updateDisplayString("You Lose");
 		
 	}
 
 	@Override
 	public void genericPushMessage(String message) {
-		// TODO Auto-generated method stub
+		gamePanel.updateDisplayString(message);
 		
 	}
 		

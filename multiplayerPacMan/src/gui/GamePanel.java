@@ -1,7 +1,10 @@
 package gui;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -17,9 +20,14 @@ import game.Enumeration.BlockType;
 import game.Enumeration.PlayerState;
 import game.GhostData;
 
-public class TemplateGamePanel extends JPanel{
+public class GamePanel extends JPanel{
 	private GameData gameData;
 	private GameMap map;
+	
+	private final int FONT_SIZE = 110;
+	private final int LETTER_OFFSET = 51;
+	private String displayText;
+	private int opacity;
 	
 	//Images
 	//TODO add other images and change what image pacman is (its wall.png right now)
@@ -30,9 +38,10 @@ public class TemplateGamePanel extends JPanel{
 	private BufferedImage ghost;
 	private BufferedImage wall;
 	
-	public TemplateGamePanel(GameData gameData) {
+	public GamePanel(GameData gameData) {
 		this.gameData = gameData;
 		map = new GameMap();
+		opacity = 0;
 		
 		//image loads
 		try {
@@ -89,6 +98,11 @@ public class TemplateGamePanel extends JPanel{
 		gameData = data;
 	}
 	
+	public void updateDisplayString(String text) {
+		displayText = text;
+		opacity = 255;
+	}
+	
 	/*This method controls what the game panel looks like
 	 * All modifications to the game panel can be added here
 	 */
@@ -127,8 +141,31 @@ public class TemplateGamePanel extends JPanel{
 		
 			//Draws each player
 			for(PlayerData player:gameData.getPlayers()) {
-				if(player.state != PlayerState.DEAD)
-					g2D.drawImage(pacMan, player.getX()*32, player.getY()*32, 32, 32, getBackground(), this);
+				Image playerImage = pacMan;
+				
+				if(player.state != PlayerState.DEAD) {
+					switch(player.getPlayerNum()) {
+					case INVALID_PLAYER:
+						break;
+					case PLAYER_ONE:
+						playerImage = pacMan;
+						break;
+					case PLAYER_TWO:
+						playerImage = pacMan2;
+						break;
+					case PLAYER_THREE:
+						playerImage = pacMan3;
+						break;
+					case PLAYER_FOUR:
+						playerImage = pacMan4;
+						break;
+					default:
+						break;
+					
+					}
+					//Drawing player
+					g2D.drawImage(playerImage, player.getX()*32, player.getY()*32, 32, 32, getBackground(), this);
+				}
 			}
 			
 			/*
@@ -159,6 +196,17 @@ public class TemplateGamePanel extends JPanel{
 					if(block == BlockType.WALL)
 						g2D.drawImage(wall, j*32, i*32, 32, 32, getBackground(), this);
 				}
+			}
+			
+			
+			//Drawing text
+			if(opacity > 0) {
+				g.setColor(new Color(255,0,0,opacity));
+				g.setFont(new Font("Courier", Font.BOLD, FONT_SIZE));
+				//g.drawRect(0,0, 100, 100);
+				g.drawString(displayText,200 - (displayText.length()/2) * LETTER_OFFSET,250);
+				System.out.println(displayText + ", " + opacity);
+				opacity -= 255*0.1;
 			}
 			
 		} catch (Exception e) {
