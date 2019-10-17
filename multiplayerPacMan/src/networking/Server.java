@@ -148,7 +148,7 @@ public class Server{
 	}
 	
 	public void startCountDown() {
-		long startTime = System.currentTimeMillis()+5000;
+		long startTime = 5000;
 		//Setting state for all clients
 		for(ClientRemoteObjectInterface clientStub:clientStubs.values()) {
 			try {
@@ -170,7 +170,7 @@ public class Server{
 				//Starting game
 				startGame();
 			}
-		},startTime - System.currentTimeMillis());
+		},startTime);
 	}
 	
 	private void startGame() {

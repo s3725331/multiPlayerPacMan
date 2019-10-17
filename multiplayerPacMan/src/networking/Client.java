@@ -128,7 +128,7 @@ public class Client {
 	
 	public void startGame(int TICK_RATE, long startTime) {
 		this.TICK_RATE = TICK_RATE;
-		long msToStart = startTime - System.currentTimeMillis();
+		long msToStart = startTime;
 		int secondsToStart = (int) Math.ceil(msToStart/1000.0);
 		gameTick = -1;
 		lastServerTick = -1;
@@ -139,12 +139,12 @@ public class Client {
 			public void run() {
 				startGameTimer();
 			}
-		}, startTime - System.currentTimeMillis());
+		}, startTime);
 		
 		
 		//Setting timer to count down to start
 		new Timer().scheduleAtFixedRate(new CountDownTimer(secondsToStart), 
-				(startTime - System.currentTimeMillis())%1000, 1000);
+				startTime%1000, 1000);
 		
 		
 	}

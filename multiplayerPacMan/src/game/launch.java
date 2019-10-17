@@ -72,7 +72,7 @@ public class launch {
 
 	
 	
-	static String getServerOption(String input) {
+	public static String getServerOption(String input) {
 		if (input.toLowerCase().equals("join")) {
 			return "join";
 		} else if (input.toLowerCase().equals("host")) {
@@ -84,7 +84,7 @@ public class launch {
 
 	}
 
-	static String validateIPaddress(String input) {
+	public static String validateIPaddress(String input) {
 		String regex = "\\b((25[0–5]|2[0–4]\\d|[01]?\\d\\d?)(\\.)){3}(25[0–5]|2[0–4]\\d|[01]?\\d\\d?)\\b";
 		if (Pattern.matches(regex, input)) {
 			System.out.println("True");

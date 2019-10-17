@@ -205,7 +205,6 @@ public class GamePanel extends JPanel{
 				g.setFont(new Font("Courier", Font.BOLD, FONT_SIZE));
 				//g.drawRect(0,0, 100, 100);
 				g.drawString(displayText,200 - (displayText.length()/2) * LETTER_OFFSET,250);
-				System.out.println(displayText + ", " + opacity);
 				opacity -= 255*0.1;
 			}
 			

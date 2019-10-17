@@ -1,7 +1,12 @@
+
+
+package game.tests;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+
+import game.launch;
 
 class launcherTest {
 
