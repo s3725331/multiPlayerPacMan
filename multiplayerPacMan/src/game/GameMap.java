@@ -9,11 +9,7 @@ import game.Enumeration.PlayerNum;
 
 public class GameMap implements Serializable{
 	private static final long serialVersionUID = 1L;
-	/*private BlockType[][] map{{BlockType.WALL,BlockType.WALL,BlockType.WALL,BlockType.WALL,BlockType.WALL},
-									{BlockType.WALL,BlockType.EMPTY_EMPTY_PATH,BlockType.EMPTY_EMPTY_PATH,BlockType.EMPTY_EMPTY_PATH,BlockType.WALL},
-									{BlockType.WALL,BlockType.EMPTY_EMPTY_PATH,BlockType.WALL,BlockType.EMPTY_EMPTY_PATH,BlockType.WALL},
-									{BlockType.WALL,BlockType.WALL,BlockType.WALL,BlockType.WALL,BlockType.WALL}},
-		*/	
+	
 	private int width = 16;
 	private int height = 15;
 	
@@ -316,7 +312,7 @@ public class GameMap implements Serializable{
 	}
 	
 	public int[] getStartingGhostPos() {
-		return new int[] {5,1};
+		return new int[] {7,7};
 	}
 	
 	public int[][] getWallCoords(){

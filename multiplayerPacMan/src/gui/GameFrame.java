@@ -1,6 +1,5 @@
 package gui;
 
-import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -19,13 +18,11 @@ public class GameFrame extends JFrame implements GameOutput{
 		setTitle(title);
 		//Sets size/position of game window (x1,y1,x2,y2)
 		setBounds(100,100,530,520);
-		//Defines layout of components in frame
-		setLayout(new BorderLayout());
 		
 		
 		//Adding gamePanel to center of screen
 		gamePanel = new GamePanel(client.getGameData());
-		add(gamePanel,BorderLayout.CENTER);
+		add(gamePanel);
 		
 		//Catches keyboard inputs and gives them to client
 		this.addKeyListener(new KeyAdapter() {
@@ -40,6 +37,7 @@ public class GameFrame extends JFrame implements GameOutput{
 			}
 		});
 		
+		//Adding close game functionality
 		addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {

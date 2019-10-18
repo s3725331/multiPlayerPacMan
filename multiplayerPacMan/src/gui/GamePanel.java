@@ -103,10 +103,6 @@ public class GamePanel extends JPanel{
 		opacity = 255;
 	}
 	
-	/*This method controls what the game panel looks like
-	 * All modifications to the game panel can be added here
-	 */
-	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -118,27 +114,8 @@ public class GamePanel extends JPanel{
 		g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 		
 		
-		//example of how to draw images to the panel
-		//drawImage(Image, x, y, horizontal size, vert size, background color, Image Observer)
-		//g2D.drawImage(wall, 10, 10, 32, 32, getBackground(), this);
-		
-		/*There a lots of over versions of drawImage() that you may find useful
-		 * There are also a lot of other draw methods you can use
-		 * (including fillRect, fillOval ect)
-		 * Look up the java docs for Graphics and Graphics2D to find this stuff
-		 * */
-		
-		//Getting game data
-		//Use getters in gameData to get the current state of the game
-		
 		
 		try {
-			/* Test code to draw players and walls (I just wanted to make sure it was all working)
-			 * 
-			 * For now if you want to get anything from gameData it needs to be in a try/catch block as this is,
-			 * Needing the try blocks is kinda dumb and ill fix it at some point but for now its good enough
-			 */
-		
 			//Draws each player
 			for(PlayerData player:gameData.getPlayers()) {
 				Image playerImage = pacMan;
@@ -168,24 +145,6 @@ public class GamePanel extends JPanel{
 				}
 			}
 			
-			/*
-			for(PlayerData player:gameData.getPlayers()) {
-				g2D.drawImage(pacMan2, player.getX()*448, player.getY()*32, 32, 32, getBackground(), this);
-			}
-			
-			for(PlayerData player:gameData.getPlayers()) {
-				g2D.drawImage(pacMan3, player.getX()*32, player.getY()*416, 32, 32, getBackground(), this);
-			}
-			
-			for(PlayerData player:gameData.getPlayers()) {
-				g2D.drawImage(pacMan4, player.getX()*448, player.getY()*416, 32, 32, getBackground(), this);
-			}*/
-			
-			//Drawing ghost
-			//for(GhostData player:gameData.getGhosts()) {
-			//	g2D.drawImage(pacMan, gameData.getGhost().getX()*224, gameData.getGhost().getY()*224, 32, 32, getBackground(), this);
-			//}
-			
 			//Draw ghost
 			g2D.drawImage(ghost, gameData.getGhost().getX()*32, gameData.getGhost().getY()*32, 32, 32, getBackground(), this);
 			
@@ -203,7 +162,6 @@ public class GamePanel extends JPanel{
 			if(opacity > 0) {
 				g.setColor(new Color(255,0,0,opacity));
 				g.setFont(new Font("Courier", Font.BOLD, FONT_SIZE));
-				//g.drawRect(0,0, 100, 100);
 				g.drawString(displayText,200 - (displayText.length()/2) * LETTER_OFFSET,250);
 				opacity -= 255*0.1;
 			}

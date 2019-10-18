@@ -44,14 +44,8 @@ public class Client {
 	
 	public Client (String hostName) throws NoRegistryException, FullServerException, RemoteException{
 		connectToServer(hostName);
-		//-1 denoting pre game lobby
-		gameTick = -1;
-		lastServerTick = -1;
-		
 		currentKeyCode = KeyEvent.VK_UNDEFINED;
 		gameData = new GameData();
-		
-		
 		
 		//defining guiUpdater
 		guiUpdater = new Timer();
@@ -99,7 +93,6 @@ public class Client {
 		try {
 			stub.disconnectFromServer(playerNum);
 		} catch (RemoteException e) {
-			System.out.println("100");
 			System.out.println(e);
 		}
 		//Ending timers, class is dead
@@ -130,6 +123,7 @@ public class Client {
 		this.TICK_RATE = TICK_RATE;
 		long msToStart = startTime;
 		int secondsToStart = (int) Math.ceil(msToStart/1000.0);
+		//Resetting tick vars
 		gameTick = -1;
 		lastServerTick = -1;
 		
@@ -150,8 +144,6 @@ public class Client {
 	}
 	
 	public void endGame(PlayerNum winner) {
-		
-		System.out.println(winner + " won");
 		for(GameOutput output: outputs)
 			output.setWinState(playerNum == winner);
 		localUpdater.cancel();
@@ -165,7 +157,6 @@ public class Client {
 			
 			//Predicting forward if necessary 
 			while(this.gameData.getTick() < gameTick) {
-				System.out.println("Prodicting foward");
 				this.gameData.gameTick();
 			}
 		}
@@ -189,8 +180,6 @@ public class Client {
 	}
 	
 	private void startGameTimer() {
-		System.out.println(playerNum + " startGame");
-		
 		gameData.getPlayer(playerNum).state = PlayerState.ALIVE;
 		
 		gameTick = 0;
@@ -229,10 +218,8 @@ public class Client {
 					for(GameOutput output:outputs) {
 						if(count>0 && count <= 3) {
 							output.genericPushMessage(String.valueOf(count));
-							System.out.println(playerNum + " " + count);
 						} else if(count==0){
 							output.genericPushMessage(String.valueOf("Go"));
-							System.out.println(playerNum + " GO,");
 						}
 					}
 				}

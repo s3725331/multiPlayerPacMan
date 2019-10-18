@@ -36,12 +36,13 @@ public class launch {
 			String serverIp;
 			Server server;
 			try {
+				//Creating server
 				server = new Server();
 				serverIp = server.getHostAddress();
-				server.registerOutput(new SimpleOutPut(null, serverIp));
+				
+				//Joining server
 				Client client = new Client(serverIp);
 				client.registerOutput(new GameFrame(client,client.getPlayerNum().toString()));
-				System.out.println("The host address is " + serverIp);
 				
 				boolean start = false;
 				while(!start) {
@@ -87,7 +88,6 @@ public class launch {
 	public static String validateIPaddress(String input) {
 		String regex = "\\b((25[0–5]|2[0–4]\\d|[01]?\\d\\d?)(\\.)){3}(25[0–5]|2[0–4]\\d|[01]?\\d\\d?)\\b";
 		if (Pattern.matches(regex, input)) {
-			System.out.println("True");
 			return input;
 		}
 		else {

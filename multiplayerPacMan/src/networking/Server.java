@@ -92,7 +92,7 @@ public class Server{
 	}
 	
 	public void restartServer() {
-		//
+		//Dropping all players
 		state = ServerState.WAITING;
 		gameData = new GameData();
 		
@@ -105,7 +105,7 @@ public class Server{
 		for(PlayerNum playerNum: clientStubs.keySet()) {
 			
 			//Adding player to new gameData
-			PlayerNum newPlayerNum = newGame.addPlayer(playerNum);
+			newGame.addPlayer(playerNum);
 		}
 		
 		gameData = newGame;
@@ -127,7 +127,6 @@ public class Server{
 					try {
 						clients.sendGameData(gameData);
 					} catch (Exception e) {
-						System.out.println("93");
 						System.out.println(e);
 					}
 				}
@@ -158,7 +157,6 @@ public class Server{
 				clientStub.sendGameData(gameData);
 					
 			} catch (Exception e) {
-				System.out.println("117");
 				System.out.println(e);
 			}
 		}
@@ -176,7 +174,6 @@ public class Server{
 	private void startGame() {
 		//Updating data
 		state = ServerState.PLAYING;
-		System.out.println("Start Server");
 		for(PlayerData player:gameData.getPlayers()) {
 			player.state = PlayerState.ALIVE;
 		}
@@ -198,7 +195,6 @@ public class Server{
 					try {
 						clientStub.sendGameData(gameData);
 					} catch (Exception e) {
-						System.out.println("208");
 						System.out.println(e);
 					}
 				}

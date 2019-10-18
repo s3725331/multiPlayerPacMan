@@ -24,7 +24,7 @@ public class SimpleOutPut extends JFrame implements GameOutput{
 	public SimpleOutPut(Client client, String title) {
 		setTitle(title);
 		setBounds(100,100,330,500);
-		setVisible(true);
+		
 		
 		gameText = new JLabel("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 		gameText.setFont(new Font("Courier", Font.PLAIN, 18));
@@ -44,14 +44,7 @@ public class SimpleOutPut extends JFrame implements GameOutput{
 			});
 		}
 		
-		/*
-		//defining guiUpdater
-		new Timer().scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				updateGameText(client.getGameData());
-			}
-		}, 0, 1000/FRAME_RATE);*/
+		setVisible(true);
 	}
 	
 	private void updateGameText(GameData gameState) {

@@ -10,11 +10,6 @@ import game.launch;
 
 class launcherTest {
 
-	//@Test
-	//void goodIP() {
-		//assertNotEquals(launch.validateIPaddress("192.168.1.1"),null);
-	//}
-
 	@Test
 	void badIP() {
 		assertEquals(launch.validateIPaddress("a.a.a.a"),null);	
